@@ -16,6 +16,8 @@ function App() {
   const [ loading, setLoading] = useState(false);
   
   useEffect (() => {
+    //  ignore help us to avoid rerender (twice) our component 
+    let ignore = false;
     // controller allow us to call once not twice (data API)
     const controller = new AbortController();
     const { signal } = controller;
@@ -23,9 +25,19 @@ function App() {
 
     axios
       .get<CategoriesResponse>(url, { signal })
-      .then(({ data }) => setData(data.meals))
-      .finally(() => setLoading(false));
-      return () => controller.abort();
+      .then(({ data }) => {
+        if(!ignore){
+          setData(data.meals)
+        }})
+      .finally(() => {
+        if(!ignore){
+          setLoading(false)
+        }
+      });
+      return () => {{
+        ignore = true;
+        controller.abort();
+      }}
   },[]);
   return (
     <Grid

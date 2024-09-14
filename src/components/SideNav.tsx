@@ -1,4 +1,4 @@
-import { Heading, Link, VStack } from "@chakra-ui/react";
+import { Heading, Link, SkeletonText, VStack } from "@chakra-ui/react";
 import { Category } from "../type";
 
 type Props = {
@@ -16,11 +16,14 @@ const selectedProps = {
 };
 
 const SideNav = ({
+  loading,
   categories,
   selectedCategory,
   setSelectedCategory,
 }: Props) => {
-  return (
+  return loading ? (
+    <SkeletonText mt="4" noOfLines={4} spacing="4" skeletonHeight="2" />
+  ) : (
     <>
       <Heading color="blue.700" fontSize={12} fontWeight="bold" mb={4}>
         CATEGORIES
@@ -33,8 +36,10 @@ const SideNav = ({
             px={2}
             py={1}
             borderRadius={5}
-            {...(selectedCategory.strCategory == c.strCategory && selectedProps)}
-          >{c.strCategory}
+            {...(selectedCategory.strCategory == c.strCategory &&
+              selectedProps)}
+          >
+            {c.strCategory}
           </Link>
         ))}
       </VStack>

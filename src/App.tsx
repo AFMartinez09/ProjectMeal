@@ -4,15 +4,26 @@ import "./App.css";
 import Header from "./components/Header";
 import SideNav from "./components/SideNav";
 import MainContent from "./components/MainContent";
-import { Category } from "./type";
+import { Category, Meal } from "./type";
 import useHttpData from "./hooks/useHttpData";
 
+const url = "https://www.themealdb.com/api/json/v1/1/list.php?c=list";
+
+const makeMealUrl = ( category: Category) => 
+  `https://www.themealdb.com/api/json/v1/1/filter.php?c=${category.strCategory}`;
+
+
+const defaultCategory = {
+  strCategory: "Beef",
+}
+
 function App() {
-  const url = "https://www.themealdb.com/api/json/v1/1/list.php?c=list";
-  const [selectedCategory, setSelectedCategory] = useState<Category>({
-    strCategory: "Beef",
-  });
+  const [selectedCategory, setSelectedCategory] = useState<Category>(defaultCategory);
   const { loading, data } = useHttpData<Category>(url);
+  const { loading: loadingMeal, data: dataMeal } = useHttpData<Meal>(makeMealUrl(defaultCategory));
+  
+  console.log({ dataMeal });
+  
   return (
     <Grid
       templateAreas={`"header header"

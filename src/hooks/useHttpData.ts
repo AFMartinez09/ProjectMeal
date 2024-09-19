@@ -16,12 +16,13 @@ export default function useHttpData<T>( url: string ) {
     axios
       .get<{ meals: T[] }>(url, { signal })
       .then(({ data }) => {
+        // if ignore is false do setData
         if(!ignore){
-          setData(data.meals)
+          setData(data.meals);
         }})
       .finally(() => {
         if(!ignore){
-          setLoading(false)
+          setLoading(false);
         }
       });
       return () => {{
@@ -29,5 +30,6 @@ export default function useHttpData<T>( url: string ) {
         controller.abort();
       }}
   },[]);
-  return { loading, data}
+  // Al exportar setData podemos tener acceso a los datos de useHttpData
+  return { loading, data, setData, setLoading}
 }

@@ -4,13 +4,16 @@ import "./App.css";
 import Header from "./components/Header";
 import SideNav from "./components/SideNav";
 import MainContent from "./components/MainContent";
-import { Category, Meal } from "./type";
+import { Category, Meal, SearchForm } from "./type";
 import useHttpData from "./hooks/useHttpData";
+import axios from "axios";
 
-const url = "https://www.themealdb.com/api/json/v1/1/list.php?c=list";
+const url = "https://www.themealdb.com/api/json/v1/1";
+
+const mealList = `${url}/list.php?c=list`;
 
 const makeMealUrl = (category: Category) =>
-  `https://www.themealdb.com/api/json/v1/1/filter.php?c=${category.strCategory}`;
+  `${url}/filter.php?c=${category.strCategory}`;
 
 const defaultCategory = {
   strCategory: "Beef",
@@ -19,10 +22,25 @@ const defaultCategory = {
 function App() {
   const [selectedCategory, setSelectedCategory] =
     useState<Category>(defaultCategory);
-  const { loading, data } = useHttpData<Category>(url);
-  const { loading: loadingMeal, data: dataMeal } = useHttpData<Meal>(
-    makeMealUrl(defaultCategory)
-  );
+  const {
+    loading,
+    data,
+  } = useHttpData<Category>(mealList);
+  const {
+    loading: loadingMeal,
+    setLoading: setLoadingMeal,
+    data: dataMeal,
+    setData: setMeals,
+  } = useHttpData<Meal>(makeMealUrl(defaultCategory));
+
+  const searchApi = (searchForm: SearchForm) => {
+    const searchUrl = `${url}/search.php?s=${searchForm.search}`;
+    setLoadingMeal(true);
+    axios
+      .get<{ meals: Meal[] }>(searchUrl)
+      .then(({ data }) => {setMeals(data.meals)})
+      .finally(() => setLoadingMeal(false));
+  };
 
   console.log({ dataMeal });
 
@@ -36,8 +54,15 @@ function App() {
       gridTemplateColumns={{ sm: `0 1fr`, md: `250px 1fr` }}
       fontSize={14}
     >
-      <GridItem zIndex="1" pos="sticky" top="0" pl="2" bg="gray.300" area={"header"}>
-        <Header />
+      <GridItem
+        zIndex="1"
+        pos="sticky"
+        top="0"
+        pl="2"
+        bg="gray.300"
+        area={"header"}
+      >
+        <Header onSubmit={searchApi} />
       </GridItem>
       <GridItem
         pos="sticky"

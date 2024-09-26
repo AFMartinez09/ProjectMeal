@@ -8,6 +8,7 @@ import { Category, Meal, SearchForm } from "./type";
 import useHttpData from "./hooks/useHttpData";
 import axios from "axios";
 import RecipeModal from "./components/RecipeModal";
+import useFetch from "./hooks/useFetch";
 
 const url = "https://www.themealdb.com/api/json/v1/1";
 
@@ -24,10 +25,8 @@ function App() {
   const { isOpen, onClose, onOpen } = useDisclosure();
   const [selectedCategory, setSelectedCategory] =
     useState<Category>(defaultCategory);
-  const {
-    loading,
-    data,
-  } = useHttpData<Category>(mealList);
+  const { loading, data } = useHttpData<Category>(mealList);
+
   const {
     loading: loadingMeal,
     setLoading: setLoadingMeal,
@@ -40,8 +39,17 @@ function App() {
     setLoadingMeal(true);
     axios
       .get<{ meals: Meal[] }>(searchUrl)
-      .then(({ data }) => {setMeals(data.meals)})
+      .then(({ data }) => {
+        setMeals(data.meals);
+      })
       .finally(() => setLoadingMeal(false));
+  };
+
+  const { fetch, loading: loadingMealDetails } = useFetch<Meal>();
+
+  const searchMealDetails = (meal: Meal) => {
+    onOpen();
+    fetch(`${url}/lookup.php?i=${meal.idMeal}`);
   };
 
   console.log({ dataMeal });
@@ -84,10 +92,18 @@ function App() {
           />
         </GridItem>
         <GridItem pl="4" bg="gray.50" area={"main"}>
-          <MainContent loading={loadingMeal} meals={dataMeal} openRecipe={onOpen} />
+          <MainContent
+            loading={loadingMeal}
+            meals={dataMeal}
+            openRecipe={searchMealDetails}
+          />
         </GridItem>
       </Grid>
-      <RecipeModal isOpen={isOpen} onClose={onClose}/>
+      <RecipeModal
+        isOpen={isOpen}
+        onClose={onClose}
+        loading={loadingMealDetails}
+      />
     </>
   );
 }

@@ -4,7 +4,7 @@ import "./App.css";
 import Header from "./components/Header";
 import SideNav from "./components/SideNav";
 import MainContent from "./components/MainContent";
-import { Category, Meal, SearchForm } from "./type";
+import { Category, Meal, MealDetails, SearchForm } from "./type";
 import useHttpData from "./hooks/useHttpData";
 import axios from "axios";
 import RecipeModal from "./components/RecipeModal";
@@ -45,7 +45,7 @@ function App() {
       .finally(() => setLoadingMeal(false));
   };
 
-  const { fetch, loading: loadingMealDetails } = useFetch<Meal>();
+  const { fetch, loading: loadingMealDetails, data: mealDetailData } = useFetch<MealDetails>();
 
   const searchMealDetails = (meal: Meal) => {
     onOpen();
@@ -100,6 +100,7 @@ function App() {
         </GridItem>
       </Grid>
       <RecipeModal
+        data={mealDetailData}
         isOpen={isOpen}
         onClose={onClose}
         loading={loadingMealDetails}
